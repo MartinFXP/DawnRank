@@ -5,9 +5,20 @@ Version: 1.2
 Date: 2014-10-13
 Author: Jack Hou
 Maintainer: Jack Hou <jackhou2@illinois.edu>
-Description: DawnRank calculates the pathway impact a mutated gene has on a individual patient using a PageRank inspired algorithm. Mutations in genes with greater pathway impact are likely to be driver genes in cancer. DawnRank can calculate individual pathway impacts and predict drivers from groups of patients
+Description: DawnRank calculates the pathway impact a mutated gene has on a
+    individual patient using a PageRank inspired algorithm. Mutations in genes with
+    greater pathway impact are likely to be driver genes in cancer. DawnRank can
+    calculate individual pathway impacts and predict drivers from groups of patients
 License: GPL
-Collate: 'condorcetRanking.R' 'Dawn.R' 'dawnDamping.R' 'DawnMatrix.R'
-        'DawnNormalize.R' 'DawnRank-internal.R' 'DawnRank.R'
-        'patspeccutoff.R' 'DawnRank-package.R'
+Collate:
+    'condorcetRanking.R'
+    'Dawn.R'
+    'dawnDamping.R'
+    'DawnMatrix.R'
+    'DawnNormalize.R'
+    'DawnRank-internal.R'
+    'DawnRank.R'
+    'patspeccutoff.R'
+    'DawnRank-package.R'
 Packaged: 2013-12-09 03:42:05 UTC; jack
+RoxygenNote: 5.0.1
