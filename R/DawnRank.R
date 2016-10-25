@@ -1,10 +1,7 @@
 DawnRank <- function(adjMatrix, expressionMatrix, mutationMatrix, mu = 20, 
     maxit = 100, epsilon = 1e-04, goldStandard = NULL, parallel = NULL) {
     damping <- dawnDamping(adjMatrix, mu)
-    allRanks <- logical(0)
-    allPercentiles <- logical(0)
-    allMutated <- logical(0)
-    iterations <- logical(0)
+    dawnMatrix<-DawnMatrix(adjMatrix)
     if (!is.null(parallel)) {
         
         library(snowfall)
@@ -12,7 +9,7 @@ DawnRank <- function(adjMatrix, expressionMatrix, mutationMatrix, mu = 20,
         sfInit(parallel = T, cpus = parallel)
 
         parFun <- function(i) {
-            Dawni <- Dawn(adjMatrix, expressionMatrix[, i], mutationMatrix[, i], damping = damping, maxit = maxit, epsilon = epsilon, patientTag = colnames(expressionMatrix)[i], goldStandard = goldStandard)
+            Dawni <- Dawn(dawnMatrix, expressionMatrix[, i], mutationMatrix[, i], damping = damping, maxit = maxit, epsilon = epsilon, patientTag = colnames(expressionMatrix)[i], goldStandard = goldStandard)
             allPercentiles <- Dawni[[1]][, 2]
             allRanks <- Dawni[[1]][, 1]
             allMutated <- Dawni[[2]]
@@ -22,7 +19,7 @@ DawnRank <- function(adjMatrix, expressionMatrix, mutationMatrix, mu = 20,
 
         Dawn <- get("Dawn", en = asNamespace("DawnRank"))
 
-        sfExport("adjMatrix", "expressionMatrix", "mutationMatrix", "damping", "maxit", "epsilon", "goldStandard", "parFun", "Dawn")
+        sfExport("dawnMatrix", "expressionMatrix", "mutationMatrix", "damping", "maxit", "epsilon", "goldStandard", "parFun", "Dawn")
 
         tmp <- sfLapply(1:ncol(expressionMatrix), parFun)
 
@@ -39,8 +36,12 @@ DawnRank <- function(adjMatrix, expressionMatrix, mutationMatrix, mu = 20,
         iterations <- do.call("c", tmp[((1:ncol(expressionMatrix))*4 - 0)])
         
     } else {
+        allRanks <- logical(0)
+        allPercentiles <- logical(0)
+        allMutated <- logical(0)
+        iterations <- logical(0)
         for (i in 1:ncol(expressionMatrix)) {
-            Dawni <- Dawn(adjMatrix, expressionMatrix[, i], mutationMatrix[, 
+            Dawni <- Dawn(dawnMatrix, expressionMatrix[, i], mutationMatrix[, 
                                                                            i], damping = damping, maxit = maxit, epsilon = epsilon, 
                           patientTag = colnames(expressionMatrix)[i], goldStandard = goldStandard)
             allPercentiles <- cbind(allPercentiles, Dawni[[1]][, 

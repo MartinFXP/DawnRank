@@ -6,7 +6,7 @@
 #' quite useful for a quick hash for ranking a patient
 #' 
 #' 
-#' @param adjMatrix, the adjacency
+#' @param dawnMatrix, the weighted adjacency
 #' @param expressionVector, the normalized expression vector
 #' @param mutationVector, a logical vector containing mutation information
 #' @param damping, the damping vector
@@ -19,9 +19,9 @@
 #' [[2]] mutated ranks, [[3]] the steps of convergence
 #' @export Dawn
 Dawn <-
-function(adjMatrix, expressionVector, mutationVector,damping, maxit=100, epsilon=0.0001, goldStandard=NULL,patientTag="defaultPatient"){
+function(dawnMatrix, expressionVector, mutationVector,damping, maxit=100, epsilon=0.0001, goldStandard=NULL,patientTag="defaultPatient"){
   
-  dawnMatrix<-DawnMatrix(adjMatrix)
+  ## dawnMatrix<-DawnMatrix(adjMatrix)
   
   #need to make a column matrix for the ranking t
   ranking_T<-matrix(expressionVector/sum(expressionVector),length(expressionVector),1)
