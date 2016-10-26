@@ -120,7 +120,7 @@ NULL
 #' @name DawnRank-package
 #' @aliases DawnRank-package DawnRank
 #' @docType package
-#' @author Jack Hou Maintainer: Jack Hou <jackhou2@@illinois.edu>
+#' @author Jack Hou <jackhou2@@illinois.edu> Maintainer: Martin Pirkl <martin.pirkl@bsse.ethz.ch>
 #' @seealso
 #' @references
 #' @keywords package

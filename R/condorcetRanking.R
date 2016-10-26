@@ -1,4 +1,4 @@
-condorcetRanking <- function (scoreMatrix, mutationMatrix, pen = 0.85, parallel = NULL, par = T) {
+condorcetRanking <- function (scoreMatrix, mutationMatrix, pen = 0.85, parallel = NULL, par = T, dovec = T) {
     pretrunc <- apply(mutationMatrix, 1, sum)
     trunc <- names(pretrunc[pretrunc > 0])
     trunc <- intersect(trunc, rownames(scoreMatrix))
@@ -7,12 +7,13 @@ condorcetRanking <- function (scoreMatrix, mutationMatrix, pen = 0.85, parallel 
                                                            ] != 0) | (mutationMatrix[p2, ] != 0)]
         fightmat <- as.matrix(scoreMatrix[c(p1, p2), voters])
         p1wins <- sum((fightmat[1, ] - fightmat[2, ]) > 0)
-        p2wins <- ncol(fightmat) - p1wins
+        p2wins <- ncol(fightmat) - p1wins # does that make sense? so even if one is mutated and the other is not, the non mutated can win? and if both are not mutated it basically automatically loses (the entry remains 0)?
         return(c(p1wins, p2wins))
     }
     scoreMatrix[mutationMatrix == 0] <- pen * scoreMatrix[mutationMatrix ==
                                                           0]
     scoreMatrix <- scoreMatrix[trunc, ]
+    mutationMatrix <- mutationMatrix[trunc, ]
     cmat <- matrix(0, nrow = length(trunc), ncol = length(trunc),
                    dimnames = list(trunc, trunc))
     
@@ -20,12 +21,46 @@ condorcetRanking <- function (scoreMatrix, mutationMatrix, pen = 0.85, parallel 
         
         parFun <- function(i, trunc, scoreMatrix, mutationMatrix) {
             colTmp <- rowTmp <- numeric(length(trunc))
-            for (j in 1:length(trunc)) {
-                if (j > i) {
-                    vres <- pwc(trunc[i], trunc[j], scoreMatrix,
-                                mutationMatrix)
-                    rowTmp[j] <- vres[1]
-                    colTmp[j] <- vres[2]
+            dovec <- T
+            if (dovec) {
+                ## try vector instead of for:
+                if (i != nrow(scoreMatrix)) {
+                    votemat <- mutationMatrix # does this take more memory ?
+                    fightmat <- scoreMatrix
+                    fightvec <- fightmat[i, ]
+                    fightres <- t(t(fightmat) - fightvec)*(-1) # win should be positive
+                    fightres[which(abs(fightres) %in% fightvec)] <- 0
+                    fightres[which(fightres > 0)] <- 1
+                    fightres[which(fightres < 0)] <- 0
+                    print(dim(votemat))
+                    print(dim(fightres))
+                    if (sum(votemat[i, ] == 0) > 0) {
+                        if (sum(votemat[, which(votemat[i, ] == 0)] == 0) > 0) {
+                            fightres[which(votemat[, which(votemat[i, ] == 0)] == 0), which(votemat[i, ] == 0)] <- 0
+                            rowTmp[-i] <- rowSums(fightres[-i, ])
+                            fightres <- 1 - fightres
+                            fightres[which(votemat[, which(votemat[i, ] == 0)] == 0), which(votemat[i, ] == 0)] <- 0
+                            colTmp[-i] <- rowSums(fightres[-i, ])
+                        } else {
+                            rowTmp[-i] <- rowSums(fightres[-i, ])
+                            fightres <- 1 - fightres
+                            colTmp[-i] <- rowSums(fightres[-i, ])
+                        }
+                    } else {
+                        rowTmp[-i] <- rowSums(fightres[-i, ])
+                        fightres <- 1 - fightres
+                        colTmp[-i] <- rowSums(fightres[-i, ])
+                    }
+                }
+                
+            } else {
+                for (j in 1:length(trunc)) {
+                    if (j > i) {
+                        vres <- pwc(trunc[i], trunc[j], scoreMatrix,
+                                    mutationMatrix)
+                        rowTmp[j] <- vres[1]
+                        colTmp[j] <- vres[2]
+                    }
                 }
             }
             return(list(r = rowTmp, c = colTmp))
