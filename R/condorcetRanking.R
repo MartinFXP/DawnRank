@@ -21,10 +21,9 @@ condorcetRanking <- function (scoreMatrix, mutationMatrix, pen = 0.85, parallel 
         
         parFun <- function(i, trunc, scoreMatrix, mutationMatrix) {
             colTmp <- rowTmp <- numeric(length(trunc))
-            dovec <- T
             if (dovec) {
                 ## try vector instead of for:
-                if (i != nrow(scoreMatrix)) {
+                ##if (i != nrow(scoreMatrix)) {
                     votemat <- mutationMatrix # does this take more memory ?
                     fightmat <- scoreMatrix
                     fightvec <- fightmat[i, ]
@@ -32,14 +31,12 @@ condorcetRanking <- function (scoreMatrix, mutationMatrix, pen = 0.85, parallel 
                     fightres[which(abs(fightres) %in% fightvec)] <- 0
                     fightres[which(fightres > 0)] <- 1
                     fightres[which(fightres < 0)] <- 0
-                    print(dim(votemat))
-                    print(dim(fightres))
-                    if (sum(votemat[i, ] == 0) > 0) {
+                    if (sum(votemat[i, ] == 0) > 0) { # maybe do this next with try()
                         if (sum(votemat[, which(votemat[i, ] == 0)] == 0) > 0) {
-                            fightres[which(votemat[, which(votemat[i, ] == 0)] == 0), which(votemat[i, ] == 0)] <- 0
+                            fightres[which(votemat[, which(votemat[i, ] == 0)] == 0)] <- 0
                             rowTmp[-i] <- rowSums(fightres[-i, ])
                             fightres <- 1 - fightres
-                            fightres[which(votemat[, which(votemat[i, ] == 0)] == 0), which(votemat[i, ] == 0)] <- 0
+                            fightres[which(votemat[, which(votemat[i, ] == 0)] == 0)] <- 0
                             colTmp[-i] <- rowSums(fightres[-i, ])
                         } else {
                             rowTmp[-i] <- rowSums(fightres[-i, ])
@@ -51,8 +48,7 @@ condorcetRanking <- function (scoreMatrix, mutationMatrix, pen = 0.85, parallel 
                         fightres <- 1 - fightres
                         colTmp[-i] <- rowSums(fightres[-i, ])
                     }
-                }
-                
+                ##}
             } else {
                 for (j in 1:length(trunc)) {
                     if (j > i) {
