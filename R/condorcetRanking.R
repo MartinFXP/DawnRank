@@ -4,6 +4,7 @@
 #' @param scoreMatrixa matrix containing all the given DawnRank scores per patient. Rows are genes, columns are  patients
 #' @param mutationMatrix the mutation matrix. Rows are genes, columns are patients
 #' @param pen the penality parameter in the condorcet algorithm for missing data. Default 0.85
+#' @param parallel number of cores for parallel calculations. Default NULL.
 #' @return the ranks. A list of 2 including a [[1]] a matrix of all pairwise comparisons, [[2]] the final rankings based on the Condorcet score
 #' @examples
 #' ###using a small subset of the TCGA dataset and a small KEGG 
@@ -77,35 +78,37 @@ condorcetRanking <- function (scoreMatrix, mutationMatrix, pen = 0.85, parallel 
     if (par) {
         
         parFun <- function(i, trunc, scoreMatrix, mutationMatrix) {
+            rowSums2 <- function(x, ...) {
+                if (!is.null(dim(x))) {
+                    return(rowSums(x, ...))
+                } else {
+                    return(t(x))
+                }
+            }
             colTmp <- rowTmp <- numeric(length(trunc))
             if (dovec) {
                 ## try vector instead of for:
-                ##if (i != nrow(scoreMatrix)) {
+                if (i != nrow(scoreMatrix)) {
                     votemat <- mutationMatrix # does this take more memory ?
                     fightmat <- scoreMatrix
                     fightvec <- fightmat[i, ]
                     fightres <- t(t(fightmat) - fightvec)*(-1) # win should be positive
-                    fightres[which(abs(fightres) %in% fightvec)] <- 0
                     fightres[which(fightres > 0)] <- 1
                     fightres[which(fightres < 0)] <- 0
-                    if (sum(votemat[i, ] == 0) > 0) { # maybe do this next with try()
-                        if (sum(votemat[, which(votemat[i, ] == 0)] == 0) > 0) {
-                            fightres[which(votemat[, which(votemat[i, ] == 0)] == 0)] <- 0
-                            rowTmp[-i] <- rowSums(fightres[-i, ])
-                            fightres <- 1 - fightres
-                            fightres[which(votemat[, which(votemat[i, ] == 0)] == 0)] <- 0
-                            colTmp[-i] <- rowSums(fightres[-i, ])
-                        } else {
-                            rowTmp[-i] <- rowSums(fightres[-i, ])
-                            fightres <- 1 - fightres
-                            colTmp[-i] <- rowSums(fightres[-i, ])
-                        }
-                    } else {
-                        rowTmp[-i] <- rowSums(fightres[-i, ])
+                    testmut <- which(votemat == 0 & arrayInd(1:length(votemat), dim(votemat))[, 2] %in% which(votemat[i, ] == 0))
+                    if (length(testmut) > 0) { # maybe do this next with try()
+                        fightres[testmut] <- 0
+                        rowTmp[-i] <- rowSums2(fightres[-i, ])
                         fightres <- 1 - fightres
-                        colTmp[-i] <- rowSums(fightres[-i, ])
+                        fightres[testmut] <- 0
+                        colTmp[-i] <- rowSums2(fightres[-i, ])
+                    } else {
+                        rowTmp[-i] <- rowSums2(fightres[-i, ])
+                        fightres <- 1 - fightres
+                        colTmp[-i] <- rowSums2(fightres[-i, ])
                     }
-                ##}
+                    rowTmp[1:i] <- colTmp[1:i] <- 0
+                }
             } else {
                 for (j in 1:length(trunc)) {
                     if (j > i) {
