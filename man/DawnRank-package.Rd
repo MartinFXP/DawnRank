@@ -62,7 +62,7 @@ patspeccutoff(patient="TCGA-A2-A04P",ms=dawnRankFrame,default=95)->significance
 
 }
 \author{
-Jack Hou Maintainer: Jack Hou <jackhou2@illinois.edu>
+Jack Hou <jackhou2@illinois.edu> Maintainer: Martin Pirkl <martin.pirkl@bsse.ethz.ch>
 }
 \keyword{package}
 

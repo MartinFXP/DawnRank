@@ -3,5 +3,6 @@
 export(Dawn)
 export(DawnMatrix)
 export(DawnNormalize)
+export(condorcetRanking)
 export(dawnDamping)
 export(patspeccutoff)
