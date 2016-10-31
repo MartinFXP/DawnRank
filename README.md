@@ -1,6 +1,6 @@
 # DawnRank
 
-github repository for driver gene identification algorithm DawnRank 2014
+driver gene identification algorithm DawnRank 2014
 
 ## Install:
 
