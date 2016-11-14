@@ -37,7 +37,7 @@ normalizedDawn <- DawnNormalize(tumorMat = brcaExampleTumorExpression, normalMat
 
 # get the DawnRank Score Get some coffee, this might take a while!
 dawnRankScore <- DawnRank(adjMatrix = brcaExamplePathway, mutationMatrix = brcaExampleMutation, 
-expressionMatrix = normalizedDawn, mu = 3, goldStandard = goldStandard)
+expressionMatrix = normalizedDawn, mu = 3, goldStandard = goldStandard, parallel = 2)
 
 # look at the DawnRank scores for a few patients
 dawnRankFrame <- dawnRankScore[[3]]
@@ -46,7 +46,7 @@ head(dawnRankFrame)
 # get the aggregate DawnRank scores Get some coffee, this might take a
 # while!
 aggregateDawnRankScore <- condorcetRanking(scoreMatrix = dawnRankScore[[2]], 
-    mutationMatrix = brcaExampleMutation)
+    mutationMatrix = brcaExampleMutation, parallel = 2)
 
 # look at top 10 ranked genes
 top10 <- aggregateDawnRankScore[[2]][1:10]
