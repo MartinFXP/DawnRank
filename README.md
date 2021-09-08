@@ -68,4 +68,4 @@ Hou & Ma, 2014
 
 https://genomemedicine.biomedcentral.com/articles/10.1186/s13073-014-0056-8
 
-http://bioen-compbio.bioen.illinois.edu/DawnRank/
+http://genome.compbio.cs.cmu.edu/~jianma/software/DawnRank/
